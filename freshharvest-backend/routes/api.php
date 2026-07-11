@@ -12,4 +12,4 @@ Route::get('/user', function (Request $request) {
 Route::apiResource('categories', CategoryController::class);
 
 Route::apiResource('products', ProductController::class)->except(['show']);
-Route::get('/products/{slug}', [ProductController::class, 'show']);
+Route::get('/products/{slug}', [ProductController::class, 'show']); 
