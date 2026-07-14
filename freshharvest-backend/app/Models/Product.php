@@ -23,7 +23,7 @@ class Product extends Model
         ];
     }
 
-    public function supplier(): BelongsTo
+    public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
     }

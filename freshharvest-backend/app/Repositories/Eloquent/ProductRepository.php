@@ -9,54 +9,50 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 class ProductRepository implements ProductRepositoryInterface
 {
     public function paginate(array $filters = [], int $perPage = 12): LengthAwarePaginator
-    {
-        $query = Product::query()
-            ->with(['category', 'supplier', 'images', 'certifications'])
-            ->where('is_active', true)
-            ->where('status', 'approved');
+{
+    $query = Product::query()
+        ->with(['category', 'creator', 'images', 'certifications'])
+        ->where('is_active', true)
+        ->where('status', 'approved');
 
-        if (! empty($filters['category_slug'])) {
-            $query->whereHas('category', fn ($q) => $q->where('slug', $filters['category_slug']));
-        }
-
-        if (! empty($filters['search'])) {
-            $query->where('name', 'like', '%' . $filters['search'] . '%');
-        }
-
-        if (! empty($filters['supplier_id'])) {
-            $query->where('user_id', $filters['supplier_id']);
-        }
-
-        if (! empty($filters['min_price'])) {
-            $query->where('price', '>=', $filters['min_price']);
-        }
-
-        if (! empty($filters['max_price'])) {
-            $query->where('price', '<=', $filters['max_price']);
-        }
-
-        $sort = $filters['sort'] ?? 'latest';
-        match ($sort) {
-            'price_asc' => $query->orderBy('price', 'asc'),
-            'price_desc' => $query->orderBy('price', 'desc'),
-            'rating' => $query->orderBy('rating_avg', 'desc'),
-            default => $query->latest(),
-        };
-
-        return $query->paginate($perPage);
+    if (! empty($filters['category_slug'])) {
+        $query->whereHas('category', fn ($q) => $q->where('slug', $filters['category_slug']));
     }
 
-    public function find(int $id): ?Product
-    {
-        return Product::with(['category', 'supplier', 'images', 'certifications', 'reviews'])->find($id);
+    if (! empty($filters['search'])) {
+        $query->where('name', 'like', '%' . $filters['search'] . '%');
     }
 
-    public function findBySlug(string $slug): ?Product
-    {
-        return Product::with(['category', 'supplier', 'images', 'certifications', 'reviews'])
-            ->where('slug', $slug)
-            ->first();
+    if (! empty($filters['min_price'])) {
+        $query->where('price', '>=', $filters['min_price']);
     }
+
+    if (! empty($filters['max_price'])) {
+        $query->where('price', '<=', $filters['max_price']);
+    }
+
+    $sort = $filters['sort'] ?? 'latest';
+    match ($sort) {
+        'price_asc' => $query->orderBy('price', 'asc'),
+        'price_desc' => $query->orderBy('price', 'desc'),
+        'rating' => $query->orderBy('rating_avg', 'desc'),
+        default => $query->latest(),
+    };
+
+    return $query->paginate($perPage);
+}
+
+public function find(int $id): ?Product
+{
+    return Product::with(['category', 'creator', 'images', 'certifications', 'reviews'])->find($id);
+}
+
+public function findBySlug(string $slug): ?Product
+{
+    return Product::with(['category', 'creator', 'images', 'certifications', 'reviews'])
+        ->where('slug', $slug)
+        ->first();
+}
 
     public function create(array $data): Product
     {

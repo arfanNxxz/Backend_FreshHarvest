@@ -12,7 +12,6 @@ return new class extends Migration
             $table->id();
             $table->foreignId('order_id')->constrained()->cascadeOnDelete();
             $table->foreignId('product_id')->nullable()->constrained()->nullOnDelete();
-            $table->foreignId('supplier_id')->constrained('users')->cascadeOnDelete();
 
             // Snapshot data (biar histori order tetap valid walau produk asli diubah/dihapus)
             $table->string('product_name');

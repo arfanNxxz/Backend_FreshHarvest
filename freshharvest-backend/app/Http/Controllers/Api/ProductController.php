@@ -45,43 +45,41 @@ class ProductController extends Controller
     }
 
     public function store(StoreProductRequest $request): JsonResponse
-    {
-        // TODO: ganti ke auth()->id() setelah modul Auth selesai
-        $userId = $request->get('user_id', 1);
+{
+    $product = $this->productService->create(
+        $request->validated() + ['images' => $request->file('images', [])],
+        $request->user()->id
+    );
 
-        $product = $this->productService->create($request->validated() + ['images' => $request->file('images', [])], $userId);
+    return response()->json([
+        'success' => true,
+        'message' => 'Produk berhasil ditambahkan.',
+        'data' => new ProductResource($product),
+    ], 201);
+}
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Produk berhasil ditambahkan, menunggu verifikasi admin.',
-            'data' => new ProductResource($product),
-        ], 201);
-    }
+public function update(UpdateProductRequest $request, int $id): JsonResponse
+{
+    $product = $this->productService->update(
+        $id,
+        $request->validated() + ['images' => $request->file('images', [])],
+        $request->user()->id
+    );
 
-    public function update(UpdateProductRequest $request, int $id): JsonResponse
-    {
-        // TODO: ganti ke auth()->id() setelah modul Auth selesai
-        $userId = $request->get('user_id', 1);
+    return response()->json([
+        'success' => true,
+        'message' => 'Produk berhasil diperbarui.',
+        'data' => new ProductResource($product),
+    ]);
+}
 
-        $product = $this->productService->update($id, $request->validated() + ['images' => $request->file('images', [])], $userId);
+public function destroy(Request $request, int $id): JsonResponse
+{
+    $this->productService->delete($id, $request->user()->id);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Produk berhasil diperbarui.',
-            'data' => new ProductResource($product),
-        ]);
-    }
-
-    public function destroy(Request $request, int $id): JsonResponse
-    {
-        // TODO: ganti ke auth()->id() setelah modul Auth selesai
-        $userId = $request->get('user_id', 1);
-
-        $this->productService->delete($id, $userId);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Produk berhasil dihapus.',
-        ]);
-    }
+    return response()->json([
+        'success' => true,
+        'message' => 'Produk berhasil dihapus.',
+    ]);
+}
 }

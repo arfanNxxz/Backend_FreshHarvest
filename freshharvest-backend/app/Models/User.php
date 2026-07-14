@@ -14,11 +14,15 @@ class User extends Authenticatable
     use HasApiTokens, Notifiable, HasRoles;
 
     protected $fillable = [
-        'name',
-        'email',
-        'phone',
-        'password',
-    ];
+    'name',
+    'email',
+    'phone',
+    'address',
+    'city',
+    'province',
+    'postal_code',
+    'password',
+];
 
     protected $hidden = [
         'password',
@@ -38,16 +42,6 @@ class User extends Authenticatable
     public function products(): HasMany
     {
         return $this->hasMany(Product::class);
-    }
-
-    public function supplierProfile(): HasOne
-    {
-        return $this->hasOne(SupplierProfile::class);
-    }
-
-    public function supplierApplications(): HasMany
-    {
-        return $this->hasMany(SupplierApplication::class);
     }
 
     public function cart(): HasOne

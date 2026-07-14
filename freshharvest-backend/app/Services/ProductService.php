@@ -51,7 +51,7 @@ class ProductService
     {
         $data['user_id'] = $userId;
         $data['slug'] = Str::slug($data['name']) . '-' . Str::random(5);
-        $data['status'] = 'pending'; // menunggu approval admin
+        $data['status'] = 'approved'; // admin yang bikin, langsung tayang
 
         $images = $data['images'] ?? [];
         $certifications = $data['certifications'] ?? [];
@@ -62,7 +62,7 @@ class ProductService
         $this->attachImages($product, $images);
         $this->attachCertifications($product, $certifications);
 
-        return $product->load(['category', 'supplier', 'images', 'certifications']);
+        return $product->load(['category', 'creator', 'images', 'certifications']);
     }
 
     public function update(int $id, array $data, int $userId): Product
@@ -88,7 +88,7 @@ class ProductService
             $this->attachImages($product, $images);
         }
 
-        return $product->load(['category', 'supplier', 'images', 'certifications']);
+        return $product->load(['category', 'creator', 'images', 'certifications']);
     }
 
     public function delete(int $id, int $userId): bool
