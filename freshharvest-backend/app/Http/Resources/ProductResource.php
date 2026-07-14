@@ -25,9 +25,9 @@ class ProductResource extends JsonResource
             'status' => $this->status,
             'is_active' => $this->is_active,
             'category' => new CategoryResource($this->whenLoaded('category')),
-            'supplier' => [
-                'id' => $this->whenLoaded('supplier', fn () => $this->supplier->id),
-                'name' => $this->whenLoaded('supplier', fn () => $this->supplier->name),
+            'created_by' => [
+              'id' => $this->whenLoaded('creator', fn () => $this->creator->id),
+             'name' => $this->whenLoaded('creator', fn () => $this->creator->name),
             ],
             'images' => ProductImageResource::collection($this->whenLoaded('images')),
             'certifications' => $this->whenLoaded('certifications', fn () => $this->certifications->pluck('name')),
