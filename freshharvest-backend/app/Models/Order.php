@@ -10,11 +10,10 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 class Order extends Model
 {
     protected $fillable = [
-        'order_number', 'user_id', 'status',
-        'recipient_name', 'phone', 'address', 'city', 'province',
-        'postal_code', 'country', 'shipping_method',
-        'subtotal', 'shipping_cost', 'tax', 'total', 'notes',
-    ];
+    'order_number', 'user_id', 'status',
+    'recipient_name', 'phone', 'street', 'suite', 'city_state_zip',
+    'subtotal', 'shipping_cost', 'tax', 'total', 'notes',
+];
 
     protected function casts(): array
     {
