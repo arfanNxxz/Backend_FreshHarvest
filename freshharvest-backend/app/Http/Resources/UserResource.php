@@ -14,10 +14,11 @@ class UserResource extends JsonResource
             'name' => $this->name,
             'email' => $this->email,
             'phone' => $this->phone,
-            'address' => $this->address,
-            'city' => $this->city,
-            'province' => $this->province,
-            'postal_code' => $this->postal_code,
+            'address' => [
+                'street' => $this->street,
+                'suite' => $this->suite,
+                'cityStateZip' => $this->city_state_zip,
+            ],
             'role' => $this->getRoleNames()->first(),
             'created_at' => $this->created_at,
         ];
