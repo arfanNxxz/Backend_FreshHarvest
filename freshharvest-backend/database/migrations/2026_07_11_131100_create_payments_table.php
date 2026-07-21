@@ -11,9 +11,9 @@ return new class extends Migration
         Schema::create('payments', function (Blueprint $table) {
             $table->id();
             $table->foreignId('order_id')->unique()->constrained()->cascadeOnDelete();
-            $table->enum('method', ['ovo', 'gopay', 'dana', 'shopeepay', 'bca', 'bni', 'bri', 'mandiri'])->nullable();
+            $table->enum('method', ['qris', 'cod'])->nullable();
             $table->enum('status', ['pending', 'paid', 'failed'])->default('pending');
-            $table->string('proof_image')->nullable(); // bukti transfer manual
+            $table->string('qris_reference')->nullable(); // buat simulasi transaksi QRIS
             $table->timestamp('paid_at')->nullable();
             $table->timestamps();
         });

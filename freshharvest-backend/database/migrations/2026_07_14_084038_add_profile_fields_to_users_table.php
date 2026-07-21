@@ -10,17 +10,16 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             $table->string('phone')->nullable()->after('email');
-            $table->text('address')->nullable()->after('phone');
-            $table->string('city')->nullable()->after('address');
-            $table->string('province')->nullable()->after('city');
-            $table->string('postal_code')->nullable()->after('province');
+            $table->string('street')->nullable()->after('phone');
+            $table->string('suite')->nullable()->after('street');
+            $table->string('city_state_zip')->nullable()->after('suite');
         });
     }
 
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn(['phone', 'address', 'city', 'province', 'postal_code']);
+            $table->dropColumn(['phone', 'street', 'suite', 'city_state_zip']);
         });
     }
 };

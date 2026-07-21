@@ -14,15 +14,12 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->enum('status', ['pending', 'diproses', 'dikirim', 'selesai', 'dibatalkan'])->default('pending');
 
-            // Shipping info
+            // Shipping info 
             $table->string('recipient_name');
             $table->string('phone');
-            $table->text('address');
-            $table->string('city');
-            $table->string('province')->nullable();
-            $table->string('postal_code');
-            $table->string('country')->default('Indonesia');
-            $table->string('shipping_method')->nullable();
+            $table->string('street');
+            $table->string('suite')->nullable();
+            $table->string('city_state_zip');
 
             // Pricing
             $table->decimal('subtotal', 12, 2);
