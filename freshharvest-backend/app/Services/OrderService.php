@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Order;
+use App\Models\Product;
 use App\Repositories\Contracts\CartRepositoryInterface;
 use App\Repositories\Contracts\OrderRepositoryInterface;
 use Illuminate\Database\Eloquent\Collection;
@@ -35,27 +36,67 @@ class OrderService
         return $order;
     }
 
-    public function checkout(int $userId, array $shippingData, string $paymentMethod): Order
+    public function checkout(int $userId, array $shippingData, string $paymentMethod, array $itemsPayload = []): Order
     {
         $cart = $this->cartRepository->getOrCreateForUser($userId);
+        $cartItems = $cart->items;
 
-        if ($cart->items->isEmpty()) {
+        if ($cartItems->isEmpty() && empty($itemsPayload)) {
             throw ValidationException::withMessages([
                 'cart' => 'Keranjang Anda masih kosong.',
             ]);
         }
 
-        // Validasi stok semua item sebelum checkout
-        foreach ($cart->items as $item) {
-            if ($item->qty > $item->product->stock) {
-                throw ValidationException::withMessages([
-                    'stock' => "Stok {$item->product->name} tidak mencukupi.",
-                ]);
+        $orderItems = [];
+
+        if ($cartItems->isNotEmpty()) {
+            foreach ($cartItems as $item) {
+                if ($item->qty > $item->product->stock) {
+                    throw ValidationException::withMessages([
+                        'stock' => "Stok {$item->product->name} tidak mencukupi.",
+                    ]);
+                }
+
+                $orderItems[] = [
+                    'product_id' => $item->product_id,
+                    'product_name' => $item->product->name,
+                    'price' => $item->product->price,
+                    'unit' => $item->product->unit,
+                    'qty' => $item->qty,
+                    'subtotal' => $item->product->price * $item->qty,
+                    'product' => $item->product,
+                ];
+            }
+        } else {
+            foreach ($itemsPayload as $payload) {
+                $product = Product::find($payload['product_id']);
+
+                if (! $product || ! $product->is_active || $product->status !== 'approved') {
+                    throw ValidationException::withMessages([
+                        'product' => 'Produk tidak tersedia.',
+                    ]);
+                }
+
+                if ($payload['qty'] > $product->stock) {
+                    throw ValidationException::withMessages([
+                        'stock' => "Stok {$product->name} tidak mencukupi.",
+                    ]);
+                }
+
+                $orderItems[] = [
+                    'product_id' => $product->id,
+                    'product_name' => $product->name,
+                    'price' => $product->price,
+                    'unit' => $product->unit,
+                    'qty' => $payload['qty'],
+                    'subtotal' => $product->price * $payload['qty'],
+                    'product' => $product,
+                ];
             }
         }
 
-        return DB::transaction(function () use ($cart, $userId, $shippingData, $paymentMethod) {
-            $subtotal = $cart->items->sum(fn ($item) => $item->product->price * $item->qty);
+        return DB::transaction(function () use ($cart, $userId, $shippingData, $paymentMethod, $orderItems) {
+            $subtotal = collect($orderItems)->sum(fn ($item) => $item['subtotal']);
             $shippingCost = 0; // FREE shipping, sesuai frontend
             $tax = round($subtotal * 0.08, 2); // 8%, sesuai frontend (taxRate = 0.08)
             $total = $subtotal + $shippingCost + $tax;
@@ -75,18 +116,18 @@ class OrderService
                 'total' => $total,
             ]);
 
-            foreach ($cart->items as $item) {
+            foreach ($orderItems as $orderItem) {
                 $order->items()->create([
-                    'product_id' => $item->product_id,
-                    'product_name' => $item->product->name,
-                    'price' => $item->product->price,
-                    'unit' => $item->product->unit,
-                    'qty' => $item->qty,
-                    'subtotal' => $item->product->price * $item->qty,
+                    'product_id' => $orderItem['product_id'],
+                    'product_name' => $orderItem['product_name'],
+                    'price' => $orderItem['price'],
+                    'unit' => $orderItem['unit'],
+                    'qty' => $orderItem['qty'],
+                    'subtotal' => $orderItem['subtotal'],
                 ]);
 
                 // Kurangi stok produk
-                $item->product->decrement('stock', $item->qty);
+                $orderItem['product']->decrement('stock', $orderItem['qty']);
             }
 
             $order->payment()->create([

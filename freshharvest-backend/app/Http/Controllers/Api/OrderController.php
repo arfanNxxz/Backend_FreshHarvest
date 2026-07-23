@@ -42,7 +42,8 @@ class OrderController extends Controller
         $order = $this->orderService->checkout(
             $request->user()->id,
             $request->only(['recipient_name', 'phone', 'street', 'suite', 'city_state_zip']),
-            $request->validated('payment_method')
+            $request->validated('payment_method'),
+            $request->validated('items')
         );
 
         return response()->json([
