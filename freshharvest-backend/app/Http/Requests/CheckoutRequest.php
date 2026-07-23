@@ -20,6 +20,9 @@ class CheckoutRequest extends FormRequest
             'suite' => ['nullable', 'string', 'max:100'],
             'city_state_zip' => ['required', 'string', 'max:150'],
             'payment_method' => ['required', 'in:qris,cod'],
+            'items' => ['required', 'array', 'min:1'],
+            'items.*.product_id' => ['required', 'integer', 'exists:products,id'],
+            'items.*.qty' => ['required', 'integer', 'min:1'],
         ];
     }
 

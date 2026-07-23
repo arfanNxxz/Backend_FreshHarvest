@@ -11,6 +11,7 @@ class OrderResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'order_id' => $this->id,
             'order_number' => $this->order_number,
             'status' => $this->status,
             'shipping' => [
@@ -25,6 +26,7 @@ class OrderResource extends JsonResource
             'shipping_cost' => (float) $this->shipping_cost,
             'tax' => (float) $this->tax,
             'total' => (float) $this->total,
+            'total_amount' => (float) $this->total,
             'payment' => new PaymentResource($this->whenLoaded('payment')),
             'created_at' => $this->created_at,
         ];
